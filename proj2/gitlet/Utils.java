@@ -216,7 +216,7 @@ class Utils {
             objectStream.close();
             return stream.toByteArray();
         } catch (IOException excp) {
-            throw error("Internal error serializing commit.");
+                throw error("Internal error serializing commit.");
         }
     }
 
