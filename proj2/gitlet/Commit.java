@@ -28,10 +28,10 @@ public class Commit implements Serializable {
      */
 
     /** The date of this Commit. */
-    private Date date;
+    public Date date;
 
     /** The message of this Commit. */
-    private String message;
+    public String message;
 
     /** The SHA-1 hashes of the 1st parent of this Commit. */
     public String parentID;
@@ -39,11 +39,14 @@ public class Commit implements Serializable {
     /** The SHA-1 hashes of the 2nd parent of this Commit.
      * TODO: add reference to 2nd parent
      */
+    public String parent2ID;
 
     /**
      * The file name paired with SHA-1 hashes of reference to the blob.
      */
     public HashMap<String, String> blobReferences;
+
+    public String sha1;
 
     /* Make the initial commit */
     public Commit() {
@@ -55,6 +58,6 @@ public class Commit implements Serializable {
     public Commit(String msg) {
         this.date = new Date();
         this.message = msg;
-        this.parentID = sha1(serialize(readCurrentCommit()));
+        this.parentID = readCurrentCommit().sha1;
     }
 }
