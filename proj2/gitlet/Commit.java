@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import static gitlet.Repository.readCurrentCommit;
 import static gitlet.Utils.serialize;
@@ -36,15 +37,13 @@ public class Commit implements Serializable {
     /** The SHA-1 hashes of the 1st parent of this Commit. */
     public String parentID;
 
-    /** The SHA-1 hashes of the 2nd parent of this Commit.
-     * TODO: add reference to 2nd parent
-     */
+    /** The SHA-1 hashes of the 2nd parent of this Commit. */
     public String parent2ID;
 
     /**
      * The file name paired with SHA-1 hashes of reference to the blob.
      */
-    public HashMap<String, String> blobReferences;
+    public TreeMap<String, String> blobReferences;
 
     public String sha1;
 

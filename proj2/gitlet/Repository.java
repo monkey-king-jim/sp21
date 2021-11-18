@@ -53,7 +53,7 @@ public class Repository {
     public static final File GITLET_BRANCHES_CURRENT = join(GITLET_BRANCHES, "current");
 
     /**
-     * The HashMap object that tracks the staging activities.
+     * The TreeMap object that tracks the staging activities.
      */
     public static final File STAGE_RECORDS = join(GITLET_STAGE_INFO, "stage_records");
     /**
@@ -67,7 +67,7 @@ public class Repository {
     /**
      * The stage records object.
      */
-    public static HashMap<String, String> stageRecords = new HashMap<>();
+    public static TreeMap<String, String> stageRecords = new TreeMap<>();
     /**
      * The rm records object.
      */
@@ -75,7 +75,7 @@ public class Repository {
     /**
      * The current branch string.
      */
-    public static String currentBranch = "master";
+    public static String currentBranch;
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -97,7 +97,8 @@ public class Repository {
             writeObject(join(GITLET_COMMITS, init_Commit_SHA1), initCommit);     /* write initCommit to .commits/ */
 
             Branch masterBranch = new Branch(init_Commit_SHA1);
-            writeObject(join(GITLET_BRANCHES, "master"), masterBranch);
+            currentBranch = "master";
+            writeObject(join(GITLET_BRANCHES, currentBranch), masterBranch);
             writeObject(CURRENT_BRANCH, currentBranch);     /* record current branch as "master" */
         }
     }
@@ -114,7 +115,7 @@ public class Repository {
         String blobSHA1 = sha1(serialize(blob));
 
         Commit currentCommit = readCurrentCommit();
-        stageRecords = readObject(STAGE_RECORDS, HashMap.class);
+        stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
         rmRecords = readObject(RM_RECORDS, HashSet.class);
         if (stageRecords.containsKey(fileName)) {
             /* remove the blob in the staging area if there's another version to be added */
@@ -144,12 +145,13 @@ public class Repository {
     private static String readCurrentBranchName() {
         return readObject(CURRENT_BRANCH, String.class);
     }
+    
     public static Branch readCurrentBranch() {
         return readObject(join(GITLET_BRANCHES, readCurrentBranchName()), Branch.class);
     }
 
     public static void commit(String msg, String parent2ID) {
-        stageRecords = readObject(STAGE_RECORDS, HashMap.class);
+        stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
         rmRecords = readObject(RM_RECORDS, HashSet.class);
         if (stageRecords.isEmpty() && rmRecords.isEmpty()) {
             System.out.println("No changes added to the commit.");
@@ -161,7 +163,7 @@ public class Repository {
         newCommit.blobReferences = parentCommit.blobReferences;
 
         if (newCommit.blobReferences == null) {
-            newCommit.blobReferences = new HashMap<>();
+            newCommit.blobReferences = new TreeMap<>();
         }
         /* overwrite file versions got from the parent commit according to the stage records */
         newCommit.blobReferences.putAll(stageRecords);
@@ -196,7 +198,7 @@ public class Repository {
     }
 
     public static void rm(String fileName) {
-        stageRecords = readObject(STAGE_RECORDS, HashMap.class);
+        stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
         Commit currentCommit = readCurrentCommit();
         if (!stageRecords.containsKey(fileName) && !currentCommit.blobReferences.containsKey(fileName)) {
             System.out.println("No reason to remove the file.");
@@ -268,7 +270,7 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Staged Files ===");
-        stageRecords = readObject(STAGE_RECORDS, HashMap.class);
+        stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
         for (String fileName : stageRecords.keySet()) {
             System.out.println(fileName);
         }
@@ -298,7 +300,7 @@ public class Repository {
     }
 
     public static void checkout(String commitID, String fileName) {
-        HashMap<String, String> commitIDs = new HashMap<>();
+        TreeMap<String, String> commitIDs = new TreeMap<>();
         commitID = commitID.substring(0, 7);
 
         for (String s :
@@ -355,7 +357,7 @@ public class Repository {
             }
         }
 
-        stageRecords = readObject(STAGE_RECORDS, HashMap.class);
+        stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
         stageRecords.clear();
         writeObject(STAGE_RECORDS,stageRecords);
 
@@ -397,7 +399,7 @@ public class Repository {
     }
 
     public static void reset(String commitID) {
-        HashMap<String, String> commitIDs = new HashMap<>();
+        TreeMap<String, String> commitIDs = new TreeMap<>();
         commitID = commitID.substring(0, 7);
 
         for (String s :
