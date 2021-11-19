@@ -145,7 +145,7 @@ public class Repository {
     private static String readCurrentBranchName() {
         return readObject(CURRENT_BRANCH, String.class);
     }
-    
+
     public static Branch readCurrentBranch() {
         return readObject(join(GITLET_BRANCHES, readCurrentBranchName()), Branch.class);
     }
