@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.lang.invoke.StringConcatFactory;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gitlet.Utils.*;
@@ -142,13 +144,9 @@ public class Repository {
         return readObject(join(GITLET_COMMITS, readCurrentBranch().head), Commit.class);
     }
 
-    private static String readCurrentBranchName() {
-        return readObject(CURRENT_BRANCH, String.class);
-    }
+    private static String readCurrentBranchName() {return readObject(CURRENT_BRANCH, String.class);}
 
-    public static Branch readCurrentBranch() {
-        return readObject(join(GITLET_BRANCHES, readCurrentBranchName()), Branch.class);
-    }
+    public static Branch readCurrentBranch() { return readObject(join(GITLET_BRANCHES, readCurrentBranchName()), Branch.class);}
 
     public static void commit(String msg, String parent2ID) {
         stageRecords = readObject(STAGE_RECORDS, TreeMap.class);
@@ -186,14 +184,18 @@ public class Repository {
             }
         }
 
-        newCommit.sha1 = sha1(serialize(newCommit));
+        /* TODO: maybe not use sha1 as an attribute? */
+//        newCommit.sha1 = sha1(serialize(newCommit));
+        String newCommitSHA1 = sha1(serialize(newCommit));
+
         if (parent2ID != null) {
             newCommit.parent2ID = parent2ID;
         }
-        writeObject(join(GITLET_COMMITS, newCommit.sha1), newCommit);
+//        writeObject(join(GITLET_COMMITS, newCommit.sha1), newCommit);
+        writeObject(join(GITLET_COMMITS, newCommitSHA1), newCommit);
 
         Branch currentBranch = readCurrentBranch();
-        currentBranch.head = newCommit.sha1;
+        currentBranch.head = newCommitSHA1;
         writeObject(join(GITLET_BRANCHES, readCurrentBranchName()), currentBranch);
     }
 
@@ -220,12 +222,14 @@ public class Repository {
 
     public static void log() {
         Commit tempCommit = readCurrentCommit();
+        DateFormat dateFormat = new SimpleDateFormat("EEE MM d HH:mm:ss yyyy Z");
         while (tempCommit != null) {
             System.out.println("===");
             System.out.println("commit " + tempCommit.sha1);
-            /* TODO: add merge info */
-            /* TODO: figure out about this formatter thing */
-            System.out.println("Date ");
+            if (tempCommit.parent2ID != null) {
+                System.out.println("Merge: " + tempCommit.parentID.substring(0,8) + tempCommit.parent2ID.substring(0, 8));
+            }
+            System.out.println("Date " + dateFormat.format(tempCommit.date));
             System.out.println(tempCommit.message);
 
             if (tempCommit.parentID == null) {
@@ -236,13 +240,15 @@ public class Repository {
     }
 
     public static void globalLog() {
+        DateFormat dateFormat = new SimpleDateFormat("EEE MM d HH:mm:ss yyyy Z");
         for (String commit : plainFilenamesIn(GITLET_COMMITS)) {
             Commit tempCommit = readObject(join(GITLET_COMMITS, commit), Commit.class);
             System.out.println("===");
             System.out.println("commit " + tempCommit.sha1);
-            /* TODO: add merge info */
-            /* TODO: figure out about this formatter thing */
-            System.out.println("Date ");
+            if (tempCommit.parent2ID != null) {
+                System.out.println("Merge: " + tempCommit.parentID.substring(0,8) + tempCommit.parent2ID.substring(0, 8));
+            }
+            System.out.println("Date " + dateFormat.format(tempCommit.date));
             System.out.println(tempCommit.message);
         }
     }
