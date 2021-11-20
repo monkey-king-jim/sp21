@@ -96,7 +96,6 @@ public class Repository {
 
             Commit initCommit = new Commit();
             String init_Commit_SHA1 = sha1(serialize(initCommit));
-            initCommit.sha1 = init_Commit_SHA1;
             writeObject(join(GITLET_COMMITS, init_Commit_SHA1), initCommit);     /* write initCommit to .commits/ */
 
             Branch masterBranch = new Branch(init_Commit_SHA1);
@@ -224,9 +223,11 @@ public class Repository {
     public static void log() {
         Commit tempCommit = readCurrentCommit();
         DateFormat dateFormat = new SimpleDateFormat("EEE MM d HH:mm:ss yyyy Z");
+        String commitSHA1 = readCurrentBranch().head;
         while (tempCommit != null) {
             System.out.println("===");
-            System.out.println("commit " + tempCommit.sha1);
+            System.out.println("commit " + commitSHA1);
+            commitSHA1 = tempCommit.parentID;
             if (tempCommit.parent2ID != null) {
                 System.out.println("Merge: " + tempCommit.parentID.substring(0,8) + tempCommit.parent2ID.substring(0, 8));
             }
@@ -245,7 +246,7 @@ public class Repository {
         for (String commit : plainFilenamesIn(GITLET_COMMITS)) {
             Commit tempCommit = readObject(join(GITLET_COMMITS, commit), Commit.class);
             System.out.println("===");
-            System.out.println("commit " + tempCommit.sha1);
+            System.out.println("commit " + commit);
             if (tempCommit.parent2ID != null) {
                 System.out.println("Merge: " + tempCommit.parentID.substring(0,8) + tempCommit.parent2ID.substring(0, 8));
             }
@@ -402,7 +403,7 @@ public class Repository {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
-        if (CURRENT_BRANCH.getName().equals(branchName)) {
+        if (readCurrentBranchName().equals(branchName)) {
             System.out.println("Cannot remove the current branch.");
             System.exit(0);
         }
@@ -423,12 +424,10 @@ public class Repository {
             System.exit(0);
         }
 
-        Commit curCommit = readCurrentCommit();
-        Commit givenCommit = readObject(join(GITLET_COMMITS, commitIDs.get(commitID)), Commit.class);
 
         currentBranch = readCurrentBranchName();
         Branch curBranch = readCurrentBranch();
-        curBranch.head = givenCommit.sha1;
+        curBranch.head = commitIDs.get(commitID);
         writeObject(CURRENT_BRANCH, curBranch);
         checkoutBranch(currentBranch);
     }
@@ -460,7 +459,7 @@ public class Repository {
                     if (!jointBranchHead.blobReferences.get(fileName).equals(givenBranchHead.blobReferences.get(fileName))) {
                         /* #1 */
                         if (jointBranchHead.blobReferences.get(fileName).equals(curBranchHead.blobReferences.get(fileName))) {
-                            checkout(givenBranchHead.sha1, fileName);
+                            checkout(givenBranch.head, fileName);
                             add(fileName);
                             /* #3 both modified in the same way */
                         } else if (givenBranchHead.blobReferences.get(fileName).equals(curBranchHead.blobReferences.get(fileName))) {
@@ -487,7 +486,7 @@ public class Repository {
                 continue;
                 /* #5 */
             } else if (!curBranchHead.blobReferences.containsKey(fileName)) {
-                checkout(givenBranchHead.sha1, fileName);
+                checkout(givenBranch.head, fileName);
                 add(fileName);
                 /* #3 */
             } else if (givenBranchHead.blobReferences.get(fileName).equals(curBranchHead.blobReferences.get(fileName))) {

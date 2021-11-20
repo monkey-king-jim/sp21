@@ -45,8 +45,6 @@ public class Commit implements Serializable {
      */
     public TreeMap<String, String> blobReferences;
 
-    public String sha1;
-
     /* Make the initial commit */
     public Commit() {
         this.date = new Date(0);
@@ -57,6 +55,6 @@ public class Commit implements Serializable {
     public Commit(String msg) {
         this.date = new Date();
         this.message = msg;
-        this.parentID = readCurrentCommit().sha1;
+        this.parentID = readCurrent;
     }
 }
