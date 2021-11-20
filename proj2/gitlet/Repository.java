@@ -258,7 +258,7 @@ public class Repository {
         for (String commit : plainFilenamesIn(GITLET_COMMITS)) {
             Commit tempCommit = readObject(join(GITLET_COMMITS, commit), Commit.class);
             if (msg.equals(tempCommit.message)) {
-                System.out.println(tempCommit.sha1);
+                System.out.println(commit);
                 count ++;
             }
         }
