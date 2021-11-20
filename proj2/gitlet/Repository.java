@@ -222,7 +222,7 @@ public class Repository {
 
     public static void log() {
         Commit tempCommit = readCurrentCommit();
-        DateFormat dateFormat = new SimpleDateFormat("EEE MM d HH:mm:ss yyyy Z");
+        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String commitSHA1 = readCurrentBranch().head;
         while (tempCommit != null) {
             System.out.println("===");
@@ -231,8 +231,9 @@ public class Repository {
             if (tempCommit.parent2ID != null) {
                 System.out.println("Merge: " + tempCommit.parentID.substring(0,8) + tempCommit.parent2ID.substring(0, 8));
             }
-            System.out.println("Date " + dateFormat.format(tempCommit.date));
+            System.out.println("Date: " + dateFormat.format(tempCommit.date));
             System.out.println(tempCommit.message);
+            System.out.println();
 
             if (tempCommit.parentID == null) {
                 break;
@@ -357,8 +358,9 @@ public class Repository {
             }
         }
 
+        String headCommitSHA1 = sha1(serialize(headCommit));
         for (String fileName : headCommit.blobReferences.keySet()) {
-            checkout(headCommit.sha1, fileName);
+            checkout(headCommitSHA1, fileName);
         }
 
         currentBranch = branchName;

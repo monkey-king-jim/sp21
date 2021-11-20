@@ -9,6 +9,7 @@ import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import static gitlet.Repository.readCurrentBranch;
 import static gitlet.Repository.readCurrentCommit;
 import static gitlet.Utils.serialize;
 import static gitlet.Utils.sha1;
@@ -55,6 +56,6 @@ public class Commit implements Serializable {
     public Commit(String msg) {
         this.date = new Date();
         this.message = msg;
-        this.parentID = readCurrent;
+        this.parentID = readCurrentBranch().head;
     }
 }
