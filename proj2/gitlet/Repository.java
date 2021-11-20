@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static gitlet.Utils.*;
 import static java.nio.file.Files.*;
@@ -270,9 +271,13 @@ public class Repository {
     public static void status() {
         /* TODO: use array to sort the outputs in lexicographic order */
         System.out.println("=== Branches ===");
-        System.out.println("*" + readCurrentBranchName());
-        for (String branchName : plainFilenamesIn(GITLET_BRANCHES)) {
-            if (!branchName.equals(readCurrentBranchName())) System.out.println(branchName);
+        List<String> branches = plainFilenamesIn(GITLET_BRANCHES).stream().sorted().collect(Collectors.toList());
+        for (String branchName : branches) {
+            if (branchName.equals(readCurrentBranchName())) {
+                System.out.println("*"+branchName);
+            } else {
+                System.out.println(branchName);
+            }
         }
         System.out.println();
         System.out.println("=== Staged Files ===");
@@ -280,6 +285,7 @@ public class Repository {
         for (String fileName : stageRecords.keySet()) {
             System.out.println(fileName);
         }
+        System.out.println();
         System.out.println("=== Removed Files ===");
         rmRecords = readObject(RM_RECORDS, HashSet.class);
         for (String fileName : rmRecords) {
