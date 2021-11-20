@@ -391,9 +391,9 @@ public class Repository {
             System.exit(0);
         }
 
-        Commit curCommit = readCurrentCommit();
-        Branch newBranch = new Branch(curCommit.sha1);
-        newBranch.joint = curCommit.sha1;
+        String curCommitSHA1 = readCurrentBranch().head;
+        Branch newBranch = new Branch(curCommitSHA1);
+        newBranch.joint = curCommitSHA1;
         writeObject(join(GITLET_BRANCHES, branchName), newBranch);
     }
 
